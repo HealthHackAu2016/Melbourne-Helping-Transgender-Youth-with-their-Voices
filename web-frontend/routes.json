@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/",
+    "page": "./pages/home",
+    "chunk": "main"
+  },
+  {
+    "path": "/calibration",
+    "page": "./pages/calibration",
+    "chunk": "main"
+  },
+  {
+    "path": "/play",
+    "page": "./pages/play",
+    "chunk": "main"
+  },
+  {
+    "path": "/error",
+    "page": "./pages/error",
+    "chunk": "main"
+  }
+]
