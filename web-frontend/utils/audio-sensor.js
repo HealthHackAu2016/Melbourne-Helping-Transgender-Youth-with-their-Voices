@@ -96,15 +96,15 @@ module.exports = class AudioSensor {
         this.recording = false
         this.recorder.stop()
         console.log('done', this.recorder)
-        this.recorder.exportMonoWAV((blob) => {
-            console.log('exported wav')
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = 'recorded.wav'
-            a.click()
-            URL.revokeObjectURL(url)
-        })
+        // this.recorder.exportMonoWAV((blob) => {
+        //     console.log('exported wav')
+        //     const url = URL.createObjectURL(blob)
+        //     const a = document.createElement('a')
+        //     a.href = url
+        //     a.download = 'recorded.wav'
+        //     a.click()
+        //     URL.revokeObjectURL(url)
+        // })
     }
 }
 

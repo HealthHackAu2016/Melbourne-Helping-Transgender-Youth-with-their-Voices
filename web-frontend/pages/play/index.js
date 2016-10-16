@@ -9,7 +9,7 @@ export default class Play extends React.Component {
     constructor() {
         super()
         this.recording = false
-        this.result = undefined
+        this.result = false
         this.pitch = undefined
         this.audioSensor = new AudioSensor()
         this.audioSensor.onanalyse = this.onanalyse.bind(this)
@@ -24,12 +24,26 @@ export default class Play extends React.Component {
         window.StartAttempt = this.startRecording.bind(this)
 
         // Checks if result is available (poll after StartAttempt)
-        window.CheckResult = () => this.result
+        window.CheckResult = () => String(this.result)
 
         // Returns pitch of current speech (if available)
         window.CheckPitch = () => this.pitch
 
         this.audioSensor.start()
+
+        window.Module = {
+            TOTAL_MEMORY: 268435456,
+            errorhandler: null,			// arguments: err, url, line. This function must return 'true' if the error is handled, otherwise 'false'
+            compatibilitycheck: null,
+            dataUrl: "Release/WebGL Build.data",
+            codeUrl: "Release/WebGL Build.js",
+            memUrl: "Release/WebGL Build.mem",
+        }
+
+        const script = document.createElement("script")
+        script.src = "/Release/UnityLoader.js"
+        script.async = true
+        document.body.appendChild(script)
     }
 
     componentWillUnmount() {
@@ -41,12 +55,14 @@ export default class Play extends React.Component {
 
     startRecording() {
         this.recording = true
+        this.result = false
         setTimeout(this.finishRecording.bind(this), 2000)
         this.audioSensor.startRecording()
     }
 
     finishRecording() {
         this.recording = false
+        this.result = true
         this.audioSensor.stopRecording()
     }
 
