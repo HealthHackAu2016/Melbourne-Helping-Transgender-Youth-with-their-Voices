@@ -20,11 +20,19 @@ The repository consists of Unity game files and a frontend that records the audi
 
 # Quick Install
 
+* Unity game
+
+    Open `TransVoicesUnityProject/Assets/TargetPractice.unity` in Unity, and run as usual
+
+* Web frontend
+
+    `cd` to the directory `web-frontend`. Run `npm install` to install the dependencies, and then `npm start` to run.
+
+* R backend
+
+    Open `Backendfiles/fileR.R` in R studio
+
 Please write here how to access and run the files and programs that are in this git here in a brief manner.
-
-# Features
-
-Features here are what the code by itself is capable of doing.
 
 # License
 
