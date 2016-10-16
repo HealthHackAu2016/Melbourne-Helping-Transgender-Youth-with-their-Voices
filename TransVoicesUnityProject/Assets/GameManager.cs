@@ -96,12 +96,19 @@ public class GameManager: MonoBehaviour {
       return currResult;
    }
 
+   public static bool GetTrueOrFalseFromJavascript( string evaluation ) {
+
+      Application.ExternalEval( "SendMessage( 'GameManager', 'ReturnRecordedParameterValue', " + evaluation + " )" );
+      Debug.Log( "True or false result: " + currResult.ToString() );
+      return ((string) currResult).ToLower().Contains( "true" );
+   }
+
    public IEnumerator RequestRecording() {
 
       Application.ExternalEval( jsStartAttemptFunction );
       recordingOverlay.SetActive( true );
       
-      while (!(bool) GetValueFromJavascript( jsCheckResultFunction )) { yield return new WaitForSeconds( 0.2f ); }
+      while (!GetTrueOrFalseFromJavascript( jsCheckResultFunction )) { yield return new WaitForSeconds( 0.2f ); }
 
       recordingOverlay.SetActive( false );
       var results = GetRecordedParameters();
