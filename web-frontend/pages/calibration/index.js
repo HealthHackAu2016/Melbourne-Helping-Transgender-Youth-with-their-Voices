@@ -5,9 +5,10 @@ import AudioSensor from '../../utils/audio-sensor'
 import Visualizer from '../../components/visualizer'
 import history from '../../core/history'
 
-const MIN_PITCH = 65
-const MAX_PITCH = 525
-const SAMPLE_SIZE = 1
+const MIN_PITCH = 85
+const MAX_PITCH = 255
+const SAMPLE_SIZE = 12
+const MIN_AMPLITUDE = 0.001
 
 class Calibration extends React.Component {
     constructor() {
@@ -31,7 +32,15 @@ class Calibration extends React.Component {
                             Click the Start button, then read the following text:
                         </div>}
                         {status !== 'done' && <div className={styles.exampleText}>
-                            Hello, I am talking to my computer for some reason
+                            You wish to know all about my
+                            grandfather. Well, he is nearly 93
+                            years old, yet he still thinks as swiftly
+                            as ever. He dresses himself in an old
+                            black frock coat, usually several
+                            buttons missing. A long beard clings
+                            to his chin, giving those who observe
+                            him a pronounced feeling of the
+                            utmost respect.
                         </div>}
                         {status === 'done' && <div>
                             <div className={styles.paragraph}>Your voice: {averagePitch}hz</div>
@@ -39,6 +48,9 @@ class Calibration extends React.Component {
                             <div className={styles.paragraph}><input type="range" min={averagePitch - 50} max={averagePitch + 50} onChange={this.changeTargetPitch.bind(this)} />
                                 <span className={styles.targetPitch}>{targetPitch}hz</span>
                                 <span className={styles.pitchDiff}>{this.pitchDiff}</span>
+                            </div>
+                            <div className={styles.paragraph}>
+                                The voiced speech of a typical adult male will have a fundamental frequency from 85 to 180 Hz, and that of a typical adult female from 165 to 255 Hz.
                             </div>
                         </div>}
                     </div>
@@ -68,7 +80,7 @@ class Calibration extends React.Component {
         if (this.state.status === 'done') {
             return
         }
-        const loudEnough = amplitude > 0.001
+        const loudEnough = amplitude > MIN_AMPLITUDE
         const newState = {
             data,
             loudEnough,

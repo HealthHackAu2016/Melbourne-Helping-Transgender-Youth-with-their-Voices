@@ -40,6 +40,7 @@ module.exports = class AudioSensor {
                 this.mediaStream = mediaStream
                 const node = this.context.createMediaStreamSource(mediaStream)
                 node.connect(this.analyser)
+                this.recorder = new Recorder(this.analyser)
             }).catch((err) => { console.log(err.name); })
         }
         this.interval = setInterval(this.analyze.bind(this), 100)
@@ -81,28 +82,29 @@ module.exports = class AudioSensor {
         })
     }
 
-    record() {
+    startRecording() {
         if (!this.recorder) {
             console.error('no recorder')
             return
         }
         this.recorder.clear()
         this.recorder.record()
-        this.setState({ recording: true })
-        setTimeout(() => {
-            this.recorder.stop()
-            console.log('done', this.recorder)
-            this.recorder.exportMonoWAV((blob) => {
-                console.log('exported wav')
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = 'recorded.wav'
-                a.click()
-                URL.revokeObjectURL(url)
-            })
-            this.setState({ recording: false })
-        }, 2000)
+        this.recording = true
+    }
+
+    stopRecording() {
+        this.recording = false
+        this.recorder.stop()
+        console.log('done', this.recorder)
+        this.recorder.exportMonoWAV((blob) => {
+            console.log('exported wav')
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'recorded.wav'
+            a.click()
+            URL.revokeObjectURL(url)
+        })
     }
 }
 
