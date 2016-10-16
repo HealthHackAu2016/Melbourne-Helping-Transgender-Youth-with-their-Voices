@@ -30,9 +30,9 @@ The repository consists of Unity game files and a frontend that records the audi
 
 * R backend
 
-    Open `Backendfiles/fileR.R` in R studio
+    Run `'node api_new.js'. This will get fileR.R, mac_learn_prob.R running. The backend will display the score for the wave file on http://localhost:3000/analyse
 
-Please write here how to access and run the files and programs that are in this git here in a brief manner.
+
 
 # License
 
