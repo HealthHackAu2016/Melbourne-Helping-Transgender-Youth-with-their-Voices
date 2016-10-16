@@ -21,15 +21,22 @@ public enum SpeechParameterType { Amplitude, Pitch }
 
 public class GameManager: MonoBehaviour {
 
+   const string jsCheckResultFunction  = "window.CheckResult()";
+   const string jsCheckPitchFunction   = "window.CheckPitch()";
+   const string jsStartAttemptFunction = "window.StartAttempt()";
+   const string jsGetGoalFunction      = "window.GetTarget()";
+
+   static object currResult;
+
    public List< SpeechParameter > femaleGoalParameters, maleGoalParameters;
    public ParameterDisplay        goalParametersDisplay, baselineParametersDisplay,
                                   lastResultsDisplay, bestResultsDisplay;
    public Text                    turnsText;
    public Button                  startGameButton, startTurnButton;
    public Toggle                  femaleToggle;
-   public GameObject              calibrationPanel, scoringPanel, recordingOverlay;
+   public GameObject              calibrationPanel, scoringPanel, recordingOverlay, genderSwitch;
    public ArcheryAnimation        archeryAnimation;
-   public bool                    useDummyResults;
+   public bool                    useDummyResults, getGoalFromJavascript;
 
    internal List< SpeechParameter > goalParameters, baselineParameters, bestResults;
    internal float baselineDifferenceSum;  // sum of differences of values between baseline and goal parameters
@@ -37,11 +44,10 @@ public class GameManager: MonoBehaviour {
 
    List< List< SpeechParameter > > pastResults = new List< List< SpeechParameter > >();
 
-   SpeechParameterType? currResultType;
-   float?               currResultValue;
-   bool                 resultReady = false;
+   void Awake() {
 
-   bool waitingForResult;
+      if (getGoalFromJavascript) { genderSwitch.SetActive( false ); }
+   }
 
    public float DifferenceSumFromGoal( List< SpeechParameter > parameters ) {
 
@@ -73,59 +79,51 @@ public class GameManager: MonoBehaviour {
 
    public void RecordCalibration() {
       
-      if (useDummyResults) { baselineParameters = GetDummyResults();       }
-      else                 { StartCoroutine( RequestRecording() );         }
+      if (useDummyResults) { baselineParameters = GetDummyResults(); }
+      else                 { StartCoroutine( RequestRecording() );   }
 
       startGameButton.interactable = true;
    }
 
-   public void ReturnRecordedParameterType( string type ) {
+   public void ReturnValueFromJavascript( object value ) {
 
-      currResultType = (SpeechParameterType) System.Enum.Parse( typeof( SpeechParameterType ), type );
+      currResult = value;
    }
+   
+   public static object GetValueFromJavascript( string evaluation ) {
 
-   public void ReturnRecordedParameterValue( float value ) {
-
-      currResultValue = value;
-   }
-
-   public void ReturnResultReady( bool result ) {
-
-      resultReady = result;
+      Application.ExternalEval( "SendMessage( 'GameManager', 'ReturnRecordedParameterValue', " + evaluation + " )" );
+      return currResult;
    }
 
    public IEnumerator RequestRecording() {
 
-      Application.ExternalEval( "window.StartAttempt" );
+      Application.ExternalEval( jsStartAttemptFunction );
       recordingOverlay.SetActive( true );
-
-      do {
-         Application.ExternalEval( "SendMessage( 'GameManager', 'ReturnResultReady', window.CheckResult() )" );
-         yield return new WaitForSeconds( 0.2f );
-
-      } while (!resultReady);
+      
+      while (!(bool) GetValueFromJavascript( jsCheckResultFunction )) { yield return new WaitForSeconds( 0.2f ); }
 
       recordingOverlay.SetActive( false );
       var results = GetRecordedParameters();
 
       if (calibrationPanel.activeSelf) {
-         baselineParameters = results;
+
+         baselineParameters           = results;
          startGameButton.interactable = true;
-      } else {
+      }
+      else {
          GotTurnResult( results );
       }
    }
 
    public List< SpeechParameter > GetRecordedParameters() {
 
-      Application.ExternalEval( "SendMessage( 'GameManager', 'ReturnRecordedParameterValue', window.CheckPitch() )" );
+      float pitch = (float) GetValueFromJavascript( jsCheckPitchFunction );
 
       var result = new List< SpeechParameter >() {  // dummy results until things are hooked up
-         new SpeechParameter( SpeechParameterType.Amplitude, 0.5f ),
-         new SpeechParameter( SpeechParameterType.Pitch,     currResultValue.Value )
+         new SpeechParameter( SpeechParameterType.Amplitude, 0.5f  ),
+         new SpeechParameter( SpeechParameterType.Pitch,     pitch )
       };
-      currResultType  = null;
-      currResultValue = null;
 
       return result;
    }
@@ -140,8 +138,19 @@ public class GameManager: MonoBehaviour {
 
    public void StartGame() {
 
-      if (femaleToggle.isOn) { goalParameters = femaleGoalParameters; }
-      else                   { goalParameters = maleGoalParameters;   }
+      if (getGoalFromJavascript && !useDummyResults) {
+
+         float goalPitch = (float) GetValueFromJavascript( jsGetGoalFunction );
+
+         goalParameters = new List< SpeechParameter >() {  // dummy results until things are hooked up
+            new SpeechParameter( SpeechParameterType.Amplitude, 0.5f      ),
+            new SpeechParameter( SpeechParameterType.Pitch,     goalPitch )
+         };
+      }
+      else {
+         if (femaleToggle.isOn) { goalParameters = femaleGoalParameters; }
+         else                   { goalParameters = maleGoalParameters;   }
+      }
       
       baselineDifferenceSum = DifferenceSumFromGoal( baselineParameters );
 
@@ -177,10 +186,5 @@ public class GameManager: MonoBehaviour {
       var results = GetDummyResults();
       //var results = GetRecordedParameters();
       GotTurnResult( results );
-   }
-
-   public void TestCallFromJavascript( string message ) {
-
-      Debug.Log( "In Unity; received message from javascript on frame " + Time.frameCount + ": " + message );
    }
 }
