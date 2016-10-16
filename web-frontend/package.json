@@ -11,6 +11,7 @@
     "classnames": "^2.2.5",
     "fastclick": "^1.0.6",
     "history": "^3.0.0",
+    "html-loader": "^0.4.4",
     "react": "^15.2.1",
     "react-dom": "^15.2.1",
     "react-mdl": "^1.6.1",

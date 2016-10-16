@@ -1,5 +1,6 @@
 import React from 'react'
 import AudioSensor from '../../utils/audio-sensor'
+import gameHtml from './game.html'
 
 const MIN_AMPLITUDE = 0.001
 const PITCH_RANGE = 100
@@ -58,7 +59,7 @@ export default class Play extends React.Component {
 
     render() {
         return (
-            <div>game goes here</div>
+            <div dangerouslySetInnerHTML={{__html: gameHtml}} />
         )
     }
 }
