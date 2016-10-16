@@ -12,9 +12,11 @@ We would like to develop an app that assists transgender youth attain and mainta
 
 ----------------------
 
-# Overview
+# Overview of Project: TransVoices
 
-I (Lily) will type this up when I get the example
+Project: TransVoices is an archery game created in Unity that uses either the masculinity or the femininity of a voice in order to score points.
+
+The repository consists of Unity game files and a frontend that records the audio input and bridges the gap between the Unity game and the backend specch processing.
 
 # Quick Install
 
